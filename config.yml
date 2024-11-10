@@ -1,0 +1,6 @@
+default:
+  covid: False
+  
+case:
+  covid: True
+  

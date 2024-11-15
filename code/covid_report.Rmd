@@ -1,5 +1,5 @@
 ---
-title: "Covid-19 Report"
+title: "Covid-19 Report for `r check_covid`"
 author: "Group 4"
 date: "`r Sys.Date()`"
 output: pdf_document
@@ -9,15 +9,16 @@ output: pdf_document
 config_list <- config::get(
     config = Sys.getenv("WHICH_CONFIG")
 )
-if (config_list$covid == T) {
+covid_enabled <- config_list$covid
+if (covid_enabled == T) {
   check_covid = "covid"
 } else {
-    check_covid = "non-covid"
-    }
+  check_covid = "non-covid"
+  }
 print(paste0("Now we are analyzing ",check_covid , " data."))
 ```
 
-```{r, set-chunk-opts, echo = FALSE, eval = config_list$covid}
+```{r, set-chunk-opts, echo = FALSE, message = FALSE}
 pacman::p_load(
   knitr,
   tree
@@ -27,7 +28,8 @@ opts_chunk$set(
 )
 here::i_am("code/covid_report.Rmd")
 ```
-```{r, print-organization-structure, warning=F}
+
+```{r, print-organization-structure, include = F}
 # setwd("D:/Yan/Emory/2024Fall/DATA550/DATA550-Midterm")
 # 
 # print_tree <- function(path, prefix = "") {
@@ -62,7 +64,7 @@ here::i_am("code/covid_report.Rmd")
 ```
 
 
-## 02_health_outcome
+## Part II - Case Severity and Health Outcomes Analysis
 ```{r}
 
 ```

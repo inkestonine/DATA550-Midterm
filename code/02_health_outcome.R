@@ -6,10 +6,14 @@ library(knitr)
 library(kableExtra)
 library(here)
 
-setwd("D:/RToolkit/DATA550-Midterm")
+# setwd("D:/RToolkit/DATA550-Midterm")
+here::i_am("code/02_health_outcome.R")
 data <- read_csv("covid_sub.csv")
 
-covid_enabled <- TRUE
+#covid_enabled <- TRUE
+# Load the configuration file based on the WHICH_CONFIG environment variable 
+config_list <- config::get( config = Sys.getenv("WHICH_CONFIG") ) 
+covid_enabled <- config_list$covid
 
 if(!dir.exists(here("output"))) {
   dir.create(here("output"))

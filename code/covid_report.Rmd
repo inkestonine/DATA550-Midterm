@@ -1,5 +1,5 @@
 ---
-title: "Covid-19 Report for `r check_covid`"
+title: "Covid-19 Report"
 author: "Group 4"
 date: "`r Sys.Date()`"
 output: pdf_document
@@ -76,7 +76,7 @@ here::i_am("code/covid_report.Rmd")
 ```
 
 
-## 04_temporal_trend
+## Part IV - Temporal Trends and Outcome Analysis
 ```{r}
 
 ```

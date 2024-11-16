@@ -21,7 +21,17 @@ The Covid-19 report has four analysis parts.
   - Patient Type Outcomes Table `output/patient_outcomes_table.csv`
     - Compares mortality rates, ICU admissions, and intubation rates between different patient types (e.g., hospitalized vs. returned home).
 
-- `code/03_association.R`
+- `code/03_association.R` from [Shicy621](https://github.com/Shicy621/DATA550-Midterm) is Temporal Trends and Outcome Analysis
+  - Case Trends Over Time `daily_cases.png` `weekly_cases.png` `monthly_cases.png`
+    - Visuals and summary statistics showing case counts across intervals (daily, weekly, monthly), with insights on significant fluctuations during key periods.
+  - Mortality and Hospitalization Trends `mortality_hospitalization_rates.png`
+    - Charts showing mortality and hospitalization rate changes over time, highlighting any significant increases or decreases across different periods.
+  - ICU Admission and Intubation Rates `icu_intubation_rates.png`
+    - Analysis of ICU and intubation rates during seasonal and pandemic peaks, with comparisons to low-demand periods to assess resource strain.
+  - Date-of-Death and Severe Case Prediction `death_trends.png`
+    - Death trends over time, with potential predictive insights for severe cases, aimed at aiding resource planning for peak periods.
+  - Summary `summary_statistics.rds`
+    - Key findings and recommendations on managing resources effectively during high-demand intervals.
 
 - `code/04_temporal_trend.R`
 

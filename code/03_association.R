@@ -9,7 +9,10 @@ library(scales) # 用于生成动态颜色
 library(config) # 用于动态加载配置
 
 # 设置环境变量（根据需要加载 "healthy" 或 "default" 配置）
-Sys.setenv(WHICH_CONFIG = "default")  # 或者 "healthy"
+#Sys.setenv(WHICH_CONFIG = "default")  # 或者 "healthy"
+
+## set work path
+here::i_am("code/03_association.R")
 
 # 读取配置文件
 config_list <- config::get(config = Sys.getenv("WHICH_CONFIG"))
@@ -52,7 +55,7 @@ if (covid_enabled) {
   severity_results <- tidy(severity_model, conf.int = TRUE)
   
   # 保存模型结果
-  write.csv(severity_results, file = here::here("output/covid_severity_results.csv"))
+  write.csv(severity_results, file = here::here("output/severity_results.csv"))
   
   # 绘制模型结果
   num_terms <- nrow(severity_results %>% filter(term != "(Intercept)"))
@@ -71,7 +74,7 @@ if (covid_enabled) {
     theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none")
   
   # 保存图像
-  ggsave(here::here("output/covid_severity_odds_ratios.png"), width = 10, height = 6, dpi = 300)
+  ggsave(here::here("output/severity_odds_ratios.png"), width = 10, height = 6, dpi = 300)
   
   #### 2. 年龄和高血压对死亡率的影响 ####
   mortality_model <- glm(MORTALITY ~ AGE + HIPERTENSION + SEX + DIABETES + COPD + OBESITY,
@@ -81,7 +84,7 @@ if (covid_enabled) {
   mortality_results <- tidy(mortality_model, conf.int = TRUE)
   
   # 保存结果
-  write.csv(mortality_results, file = here::here("output/covid_mortality_results.csv"))
+  write.csv(mortality_results, file = here::here("output/mortality_results.csv"))
   
   # 绘制模型结果
   num_terms <- nrow(mortality_results %>% filter(term != "(Intercept)"))
@@ -100,7 +103,7 @@ if (covid_enabled) {
     theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none")
   
   # 保存图像
-  ggsave(here::here("output/covid_mortality_odds_ratios.png"), width = 10, height = 6, dpi = 300)
+  ggsave(here::here("output/mortality_odds_ratios.png"), width = 10, height = 6, dpi = 300)
   
   #### 3. 吸烟和肥胖对 ICU 入住的影响 ####
   tobacco_obesity_model <- glm(ICU ~ TOBACCO + OBESITY + SEX + AGE,
@@ -110,7 +113,7 @@ if (covid_enabled) {
   tobacco_obesity_results <- tidy(tobacco_obesity_model, conf.int = TRUE)
   
   # 保存结果
-  write.csv(tobacco_obesity_results, file = here::here("output/covid_tobacco_obesity_results.csv"))
+  write.csv(tobacco_obesity_results, file = here::here("output/tobacco_obesity_results.csv"))
   
   # 绘制模型结果
   num_terms <- nrow(tobacco_obesity_results %>% filter(term != "(Intercept)"))
@@ -129,7 +132,7 @@ if (covid_enabled) {
     theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none")
   
   # 保存图像
-  ggsave(here::here("output/covid_tobacco_obesity_odds_ratios.png"), width = 10, height = 6, dpi = 300)
+  ggsave(here::here("output/tobacco_obesity_odds_ratios.png"), width = 10, height = 6, dpi = 300)
   
   # 叠加条形图
   temp_bar_data <- temp_data_covid %>%
@@ -151,7 +154,7 @@ if (covid_enabled) {
     theme_minimal()
   
   # 保存叠加条形图
-  ggsave(here::here("output/covid_tobacco_obesity_stacked_bar.png"), width = 10, height = 6, dpi = 300)
+  ggsave(here::here("output/tobacco_obesity_stacked_bar.png"), width = 10, height = 6, dpi = 300)
   
 } else {
   temp_data_non_covid <- data_clean_covid %>%
@@ -166,7 +169,7 @@ if (covid_enabled) {
   severity_results <- tidy(severity_model, conf.int = TRUE)
   
   # 保存模型结果
-  write.csv(severity_results, file = here::here("output/non_covid_severity_results.csv"))
+  write.csv(severity_results, file = here::here("output/severity_results.csv"))
   
   # 绘制模型结果
   num_terms <- nrow(severity_results %>% filter(term != "(Intercept)"))
@@ -185,7 +188,7 @@ if (covid_enabled) {
     theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none")
   
   # 保存图像
-  ggsave(here::here("output/non_covid_severity_odds_ratios.png"), width = 10, height = 6, dpi = 300)
+  ggsave(here::here("output/severity_odds_ratios.png"), width = 10, height = 6, dpi = 300)
   
   #### 2. 年龄和高血压对死亡率的影响 ####
   mortality_model <- glm(MORTALITY ~ AGE + HIPERTENSION + SEX + DIABETES + COPD + OBESITY,
@@ -195,7 +198,7 @@ if (covid_enabled) {
   mortality_results <- tidy(mortality_model, conf.int = TRUE)
   
   # 保存结果
-  write.csv(mortality_results, file = here::here("output/non_covid_mortality_results.csv"))
+  write.csv(mortality_results, file = here::here("output/mortality_results.csv"))
   
   # 绘制模型结果
   num_terms <- nrow(mortality_results %>% filter(term != "(Intercept)"))
@@ -214,7 +217,7 @@ if (covid_enabled) {
     theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none")
   
   # 保存图像
-  ggsave(here::here("output/non_covid_mortality_odds_ratios.png"), width = 10, height = 6, dpi = 300)
+  ggsave(here::here("output/mortality_odds_ratios.png"), width = 10, height = 6, dpi = 300)
   
   #### 3. 吸烟和肥胖对 ICU 入住的影响 ####
   tobacco_obesity_model <- glm(ICU ~ TOBACCO + OBESITY + SEX + AGE,
@@ -224,7 +227,7 @@ if (covid_enabled) {
   tobacco_obesity_results <- tidy(tobacco_obesity_model, conf.int = TRUE)
   
   # 保存结果
-  write.csv(tobacco_obesity_results, file = here::here("output/non_covid_tobacco_obesity_results.csv"))
+  write.csv(tobacco_obesity_results, file = here::here("output/tobacco_obesity_results.csv"))
   
   # 绘制模型结果
   num_terms <- nrow(tobacco_obesity_results %>% filter(term != "(Intercept)"))
@@ -243,7 +246,7 @@ if (covid_enabled) {
     theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none")
   
   # 保存图像
-  ggsave(here::here("output/non_covid_tobacco_obesity_odds_ratios.png"), width = 10, height = 6, dpi = 300)
+  ggsave(here::here("output/tobacco_obesity_odds_ratios.png"), width = 10, height = 6, dpi = 300)
   
   #### 4. 叠加条形图分析吸烟和肥胖对 ICU 入住的影响 ####
   temp_bar_data <- temp_data_non_covid %>%
@@ -265,5 +268,5 @@ if (covid_enabled) {
     theme_minimal()
   
   # 保存叠加条形图
-  ggsave(here::here("output/non_covid_tobacco_obesity_stacked_bar.png"), width = 10, height = 6, dpi = 300)
+  ggsave(here::here("output/tobacco_obesity_stacked_bar.png"), width = 10, height = 6, dpi = 300)
 }

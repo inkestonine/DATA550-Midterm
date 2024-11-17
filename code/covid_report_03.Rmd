@@ -1,0 +1,221 @@
+---
+title: "Covid-19 Report for `r check_covid`"
+author: "Group 4"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+```{r}
+install.packages("kableExtra")
+
+```
+
+```{r}
+library(kableExtra)
+library(knitr)
+
+
+```
+```{r read-config}
+config_list <- config::get(
+    config = Sys.getenv("WHICH_CONFIG")
+)
+covid_enabled <- config_list$covid
+if (covid_enabled == T) {
+  check_covid = "covid"
+} else {
+  check_covid = "non-covid"
+  }
+print(paste0("Now we are analyzing ",check_covid , " data."))
+```
+
+```{r, set-chunk-opts, echo = FALSE, message = FALSE}
+pacman::p_load(
+  knitr,
+  tree
+  )
+opts_chunk$set(
+  echo = FALSE, warning = FALSE, message = FALSE
+)
+here::i_am("code/covid_report.Rmd")
+```
+
+```{r, print-organization-structure, include = F}
+# setwd("D:/Yan/Emory/2024Fall/DATA550/DATA550-Midterm")
+# 
+# print_tree <- function(path, prefix = "") {
+#   # list all files and folders
+#   items <- list.files(path, full.names = TRUE)
+# 
+#   # calculate the max name to alige
+#   max_length <- max(nchar(basename(items)))
+# 
+#   for (i in seq_along(items)) {
+#     # print
+#     if (i == length(items)) {
+#       cat(prefix, "└── ", sprintf("%-*s", max_length, basename(items[i])), "\n")  # last
+#       new_prefix <- paste0(prefix, "    ")  # update prefix
+#     } else {
+#       cat(prefix, "├── ", sprintf("%-*s", max_length, basename(items[i])), "\n")  # other
+#       new_prefix <- paste0(prefix, " │   ")  # update prefix
+#     }
+# 
+#     # check if folder
+#     if (file.info(items[i])$isdir) {
+#       print_tree(items[i], new_prefix)  # recursive call
+#     }
+#   }
+# }
+# print_tree(".")
+```
+
+## 01_demography
+```{r}
+
+```
+
+
+## Part II - Case Severity and Health Outcomes Analysis
+```{r}
+
+```
+
+
+## 03_association
+## 3.1. COVID Analysis
+##3.1.1ICU Admission Factors (COVID)
+### Logistic Regression Results
+This table summarizes the logistic regression analysis of ICU admissions among COVID cases. Factors like diabetes, renal chronic disease, and hypertension are assessed for their association with ICU admission.
+```{r}
+# Load regression results for ICU admission analysis
+covid_severity_results <- read.csv(here::here("output/covid_severity_results.csv"))
+
+# Display results table
+kable(covid_severity_results, format = "html", caption = "COVID: ICU Admission Logistic Regression Results") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed"))
+
+
+```
+###dds Ratios plot
+This plot visualizes the odds ratios from the logistic regression analysis, showing the strength and direction of association for each factor affecting ICU admissions
+```{r}
+# Include ICU admission analysis plot
+include_graphics(here::here("output/covid_severity_odds_ratios.png"))
+
+
+```
+##3.1.2 Mortality Factors (COVID)
+###Logistic Regression Results
+This table presents the logistic regression analysis of factors associated with mortality among COVID cases, including age, hypertension, diabetes, and obesity.
+```{r}
+# Load regression results for mortality analysis
+covid_mortality_results <- read.csv(here::here("output/covid_mortality_results.csv"))
+
+# Display results table
+kable(covid_mortality_results, format = "html", caption = "COVID: Mortality Logistic Regression Results") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed"))
+
+```
+###dds Ratios Plot
+This plot highlights the odds ratios for factors influencing mortality among COVID cases.
+```{r}
+# Include mortality analysis plot
+include_graphics(here::here("output/covid_mortality_odds_ratios.png"))
+
+```
+##3.1.3 Tobacco and Obesity Impact on ICU Admission (COVID)
+###Logistic Regression Results
+This table displays the results of logistic regression analysis examining the relationship between tobacco use, obesity, and ICU admissions among COVID cases.
+```{r}
+# Load regression results for tobacco and obesity analysis
+covid_tobacco_obesity_results <- read.csv(here::here("output/covid_tobacco_obesity_results.csv"))
+
+kable(covid_tobacco_obesity_results, format = "html", caption = "COVID: Tobacco and Obesity Impact on ICU Admission") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed"))
+
+```
+###dds Ratios Plot
+This plot illustrates the odds ratios for tobacco use and obesity in predicting ICU admissions.
+
+```{r}
+# Include tobacco and obesity analysis plot
+include_graphics(here::here("output/covid_tobacco_obesity_odds_ratios.png"))
+
+```
+###Stacked Bar Plot
+This stacked bar plot visualizes the distribution of ICU admissions by tobacco use and obesity status among COVID cases
+```{r}
+# Include stacked bar plot
+include_graphics(here::here("output/covid_tobacco_obesity_stacked_bar.png"))
+
+```
+##3.2Non-COVID Analysis
+
+###3.2.1ICU Admission Factors (Non-COVID)
+###Logistic Regression Results
+This table summarizes the logistic regression analysis of ICU admissions among non-COVID cases, evaluating factors such as diabetes, renal chronic disease, and hypertension.
+```{r}
+# Load regression results for ICU admission analysis
+non_covid_severity_results <- read.csv(here::here("output/non_covid_severity_results.csv"))
+
+# Display results table
+kable(non_covid_severity_results, format = "html", caption = "Non-COVID: ICU Admission Logistic Regression Results") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed"))
+
+
+```
+###Odds Ratios Plot
+This plot visualizes the odds ratios for factors associated with ICU admissions among non-COVID cases
+```{r}
+# Include ICU admission analysis plot
+include_graphics(here::here("output/non_covid_severity_odds_ratios.png"))
+
+```
+##3.2.2 Mortality Factors (Non-COVID)
+###Logistic Regression Results
+This table presents the results of logistic regression analysis examining the factors affecting mortality among non-COVID cases.
+```{r}
+# Load regression results for mortality analysis
+non_covid_mortality_results <- read.csv(here::here("output/non_covid_mortality_results.csv"))
+
+# Display results table
+kable(non_covid_mortality_results, format = "html", caption = "Non-COVID: Mortality Logistic Regression Results") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed"))
+
+```
+###Odds Ratios Plot
+This plot highlights the odds ratios for factors influencing mortality among non-COVID cases.
+```{r}
+# Include mortality analysis plot
+include_graphics(here::here("output/non_covid_mortality_odds_ratios.png"))
+
+```
+##3.2.3 Tobacco and Obesity Impact on ICU Admission (Non-COVID)
+###Logistic Regression Results
+This table displays the results of logistic regression analysis examining the relationship between tobacco use, obesity, and ICU admissions among non-COVID cases
+```{r}
+# Load regression results for tobacco and obesity analysis
+non_covid_tobacco_obesity_results <- read.csv(here::here("output/non_covid_tobacco_obesity_results.csv"))
+
+# Display results table
+kable(non_covid_tobacco_obesity_results, format = "html", caption = "Non-COVID: Tobacco and Obesity Impact on ICU Admission") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed"))
+```
+###Odds Ratios Plot
+This plot illustrates the odds ratios for tobacco use and obesity in predicting ICU admissions among non-COVID cases
+```{r}
+# Include tobacco and obesity analysis plot
+include_graphics(here::here("output/non_covid_tobacco_obesity_odds_ratios.png"))
+
+```
+###Stacked Bar Plot
+This stacked bar plot visualizes the distribution of ICU admissions by tobacco use and obesity status among non-COVID cases.
+```{r}
+# Include stacked bar plot
+include_graphics(here::here("output/non_covid_tobacco_obesity_stacked_bar.png"))
+
+```
+## 04_temporal_trend
+```{r}
+
+```
+

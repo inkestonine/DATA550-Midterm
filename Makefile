@@ -1,7 +1,7 @@
 # render report
 report.html: code/covid_report.Rmd 
 	Rscript code/00_render_report.R
-	
+
 
 # 02 healthy outcome analysis
 output/classification_bar_chart.png output/diabetes_severity_scatter_plot.png output/classification_table.csv output/patient_outcomes_table.csv&: \
@@ -13,6 +13,17 @@ health_outcome: output/classification_bar_chart.png \
  output/diabetes_severity_scatter_plot.png output/classification_table.csv \
  output/patient_outcomes_table.csv
 
+
+# 03 association analysis
+output/severity_results.csv output/severity_odds_ratios.png output/mortality_results.csv output/mortality_odds_ratios.png output/tobacco_obesity_results.csv output/tobacco_obesity_odds_ratios.png output/tobacco_obesity_stacked_bar.png&: \
+ code/03_association.R covid_sub.csv
+	Rscript code/03_association.R
+
+.PHONY: association
+association: output/severity_results.csv output/severity_odds_ratios.png \
+ output/mortality_results.csv output/mortality_odds_ratios.png \
+ output/tobacco_obesity_results.csv output/tobacco_obesity_odds_ratios.png \
+ output/tobacco_obesity_stacked_bar.png
 
 
 # 04 temporal trend analysis

@@ -70,7 +70,7 @@ here::i_am("code/covid_report.Rmd")
 ```
 
 
-## 03_association
+## Part III - Association Analysis
 ```{r}
 
 ```

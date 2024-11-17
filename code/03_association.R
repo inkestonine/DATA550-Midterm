@@ -1,108 +1,269 @@
-# Load 
+# 加载必要的包
 library(ggplot2)
 library(dplyr)
 library(broom)
 library(here)
 library(RColorBrewer)
+library(tidyr)
+library(scales) # 用于生成动态颜色
+library(config) # 用于动态加载配置
 
-here::i_am("code/03_association.R")
+# 设置环境变量（根据需要加载 "healthy" 或 "default" 配置）
+Sys.setenv(WHICH_CONFIG = "default")  # 或者 "healthy"
 
-data <- read.csv(here::here("covid_sub.csv"))
+# 读取配置文件
+config_list <- config::get(config = Sys.getenv("WHICH_CONFIG"))
 
-data_clean <- data %>%
-  mutate(
-    DIABETES = factor(DIABETES, levels = c("No", "Yes")),
-    TOBACCO = factor(TOBACCO, levels = c("No", "Yes")),
-    OBESITY = factor(OBESITY, levels = c("No", "Yes")),
-    SEX = factor(SEX, levels = c("male", "female")),
-    MORTALITY = ifelse(is.na(DATE_DIED), 0, 1),  # 0 = Survived, 1 = Deceased (based on presence of DATE_DIED)
-    ICU = factor(ICU, levels = c("No", "Yes")),
-    CLASIFFICATION_FINAL = as.numeric(CLASIFFICATION_FINAL)  
-  ) %>%
-  filter(
-    !is.na(DIABETES),
-    !is.na(TOBACCO),
-    !is.na(OBESITY),
-    !is.na(MORTALITY),
-    !is.na(ICU),
-    !is.na(CLASIFFICATION_FINAL)
-  )
+# 检查是否启用 COVID 相关分析
+covid_enabled <- config_list$covid
 
+# 加载数据文件
+data_clean_covid <- read.csv(here::here("covid_sub.csv"))
+
+
+# 设置全局主题
 theme_set(theme_bw(base_size = 15))
 
-# 1. Multiple Regression Analysis: Diabetes, Smoking, Obesity vs Mortality (MORTALITY)
-mortality_model <- glm(MORTALITY ~ DIABETES + TOBACCO + OBESITY + SEX, data = data_clean, family = binomial)
+# 创建输出目录（如果不存在）
+if (!dir.exists(here::here("output"))) {
+  dir.create(here::here("output"), recursive = TRUE)
+}
 
-mortality_results <- tidy(mortality_model, conf.int = TRUE)
+# 转换 ICU 和 DATE_DIED 变量
+data_clean_covid <- data_clean_covid %>%
+  mutate(
+    # 将 ICU 编码为 0 和 1
+    ICU = ifelse(ICU == "Yes", 1, ifelse(ICU == "No", 0, NA)),
+    
+    # 将 DATE_DIED 转换为 MORTALITY (0 = 存活, 1 = 死亡)
+    MORTALITY = ifelse(is.na(DATE_DIED), 0, 1)
+  )
 
-# Save the regression coefficients and confidence intervals
-write.csv(mortality_results, file = here::here("output/logit_mortality_results.csv"))
+if (covid_enabled) {
+  # 分析 COVID 病例（CLASIFICATION_FINAL 1-3）
+  temp_data_covid <- data_clean_covid %>%
+    filter(CLASIFICATION_FINAL >= 1 & CLASIFICATION_FINAL <= 3)
+  
+  #### 1. 糖尿病、慢性肾病对 ICU 入住的影响 ####
+  severity_model <- glm(ICU ~ DIABETES + RENAL_CHRONIC + SEX + AGE + HIPERTENSION,
+                        data = temp_data_covid %>% filter(!is.na(ICU)),
+                        family = binomial)
+  
+  severity_results <- tidy(severity_model, conf.int = TRUE)
+  
+  # 保存模型结果
+  write.csv(severity_results, file = here::here("output/covid_severity_results.csv"))
+  
+  # 绘制模型结果
+  num_terms <- nrow(severity_results %>% filter(term != "(Intercept)"))
+  custom_colors <- hue_pal()(num_terms)
+  
+  ggplot(severity_results %>% filter(term != "(Intercept)"),
+         aes(x = term, y = exp(estimate), ymin = exp(conf.low), ymax = exp(conf.high), color = term)) +
+    geom_pointrange() +
+    geom_hline(yintercept = 1, linetype = "dashed") +
+    labs(
+      title = "Odds Ratios for ICU Admission (COVID Cases)",
+      x = "Variable",
+      y = "Odds Ratio (Exp(Estimate))"
+    ) +
+    scale_color_manual(values = custom_colors) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none")
+  
+  # 保存图像
+  ggsave(here::here("output/covid_severity_odds_ratios.png"), width = 10, height = 6, dpi = 300)
+  
+  #### 2. 年龄和高血压对死亡率的影响 ####
+  mortality_model <- glm(MORTALITY ~ AGE + HIPERTENSION + SEX + DIABETES + COPD + OBESITY,
+                         data = temp_data_covid %>% filter(!is.na(MORTALITY)),
+                         family = binomial)
+  
+  mortality_results <- tidy(mortality_model, conf.int = TRUE)
+  
+  # 保存结果
+  write.csv(mortality_results, file = here::here("output/covid_mortality_results.csv"))
+  
+  # 绘制模型结果
+  num_terms <- nrow(mortality_results %>% filter(term != "(Intercept)"))
+  custom_colors <- hue_pal()(num_terms)
+  
+  ggplot(mortality_results %>% filter(term != "(Intercept)"),
+         aes(x = term, y = exp(estimate), ymin = exp(conf.low), ymax = exp(conf.high), color = term)) +
+    geom_pointrange() +
+    geom_hline(yintercept = 1, linetype = "dashed") +
+    labs(
+      title = "Odds Ratios for Mortality (COVID Cases)",
+      x = "Variable",
+      y = "Odds Ratio (Exp(Estimate))"
+    ) +
+    scale_color_manual(values = custom_colors) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none")
+  
+  # 保存图像
+  ggsave(here::here("output/covid_mortality_odds_ratios.png"), width = 10, height = 6, dpi = 300)
+  
+  #### 3. 吸烟和肥胖对 ICU 入住的影响 ####
+  tobacco_obesity_model <- glm(ICU ~ TOBACCO + OBESITY + SEX + AGE,
+                               data = temp_data_covid %>% filter(!is.na(ICU), !is.na(TOBACCO), !is.na(OBESITY)),
+                               family = binomial)
+  
+  tobacco_obesity_results <- tidy(tobacco_obesity_model, conf.int = TRUE)
+  
+  # 保存结果
+  write.csv(tobacco_obesity_results, file = here::here("output/covid_tobacco_obesity_results.csv"))
+  
+  # 绘制模型结果
+  num_terms <- nrow(tobacco_obesity_results %>% filter(term != "(Intercept)"))
+  custom_colors <- hue_pal()(num_terms)
+  
+  ggplot(tobacco_obesity_results %>% filter(term != "(Intercept)"),
+         aes(x = term, y = exp(estimate), ymin = exp(conf.low), ymax = exp(conf.high), color = term)) +
+    geom_pointrange() +
+    geom_hline(yintercept = 1, linetype = "dashed") +
+    labs(
+      title = "Odds Ratios for ICU Admission (Tobacco and Obesity - COVID Cases)",
+      x = "Variable",
+      y = "Odds Ratio (Exp(Estimate))"
+    ) +
+    scale_color_manual(values = custom_colors) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none")
+  
+  # 保存图像
+  ggsave(here::here("output/covid_tobacco_obesity_odds_ratios.png"), width = 10, height = 6, dpi = 300)
+  
+  # 叠加条形图
+  temp_bar_data <- temp_data_covid %>%
+    filter(!is.na(ICU), !is.na(TOBACCO), !is.na(OBESITY)) %>%
+    group_by(ICU, TOBACCO, OBESITY) %>%
+    summarise(count = n(), .groups = "drop") %>%
+    mutate(ICU = factor(ICU, levels = c(0, 1), labels = c("No", "Yes")))
+  
+  ggplot(temp_bar_data, aes(x = TOBACCO, y = count, fill = OBESITY)) +
+    geom_bar(stat = "identity", position = "fill") +
+    facet_wrap(~ICU) +
+    labs(
+      title = "Stacked Bar Plot: Tobacco and Obesity vs ICU Admission (COVID Cases)",
+      x = "Tobacco Use",
+      y = "Proportion",
+      fill = "Obesity"
+    ) +
+    scale_fill_brewer(palette = "Set2") +
+    theme_minimal()
+  
+  # 保存叠加条形图
+  ggsave(here::here("output/covid_tobacco_obesity_stacked_bar.png"), width = 10, height = 6, dpi = 300)
+  
+} else {
+  temp_data_non_covid <- data_clean_covid %>%
+    filter(CLASIFICATION_FINAL >= 4)
+  
 
-# Plot the Odds Ratios for mortality with white background and black axis lines
-ggplot(mortality_results, aes(x = term, y = exp(estimate), ymin = exp(conf.low), ymax = exp(conf.high), color = term)) +
-  geom_pointrange() +
-  geom_hline(yintercept = 1, linetype = "dashed") +
-  labs(
-    title = "Odds Ratios for Factors Associated with Mortality",
-    x = "Variable",
-    y = "Odds Ratio (Exp(Estimate))"
-  ) +
-  scale_color_brewer(palette = "Set2") + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),  # Rotate x-axis labels for better readability
-        legend.position = "none",  # Remove the legend as it is not needed
-        panel.grid.minor = element_blank(),  # Remove minor grid lines
-        axis.line = element_line(color = "black", size = 0.5))  # Black axis lines
-
-
-ggsave(here::here("output/mortality_logit_results.png"), width = 10, height = 6, dpi = 300)
-
-# 2. Diabetes and ICU Relation Analysis: Chi-Square Test
-chi_test <- chisq.test(table(data_clean$DIABETES, data_clean$ICU))
-
-# Save Chi-Square test results
-chi_results <- data.frame(
-  Chi_Square = chi_test$statistic,
-  Degrees_of_Freedom = chi_test$parameter,
-  p_value = chi_test$p.value
-)
-
-write.csv(chi_results, file = here::here("output/diabetes_icu_results.csv"))
-
-# 3. Smoking, Obesity, and CLASIFFICATION_FINAL Relationship: Linear Regression
-severity_model <- lm(CLASIFFICATION_FINAL ~ TOBACCO + OBESITY + SEX, data = data_clean)
-
-# Extract regression coefficients for severity model
-severity_results <- tidy(severity_model)
-
-write.csv(severity_results, file = here::here("output/lm_severity_results.csv"))
-
-# Plot the regression coefficients for severity with white background and black axis lines
-ggplot(severity_results, aes(x = term, y = estimate, fill = term)) +
-  geom_bar(stat = "identity", show.legend = FALSE) +
-  labs(
-    title = "Regression Coefficients for Factors Associated with Severity (CLASIFFICATION_FINAL)",
-    x = "Variable",
-    y = "Estimate"
-  ) +
-  scale_fill_brewer(palette = "Set1") +  # Use a color palette from RColorBrewer for better fill colors
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),  # Rotate x-axis labels for better readability
-        panel.grid.minor = element_blank(),  # Remove minor grid lines
-        axis.line = element_line(color = "black", size = 0.5))  # Black axis lines
-
-ggsave(here::here("output/severity_lm_results.png"), width = 10, height = 6, dpi = 300)
-
-# Diabetes vs Classification Final
-ggplot(data_clean, aes(x = DIABETES, fill = as.factor(CLASIFFICATION_FINAL))) +
-  geom_bar(position = "fill") +
-  labs(
-    title = "Stacked Bar Plot: Diabetes vs Classification Final",
-    x = "Diabetes Status",
-    y = "Proportion",
-    fill = "Classification Final"
-  ) +
-  theme_minimal(base_size = 14) -> diabetes_classification_plot  # Save the plot object
-
-# Save the plot as PNG
-ggsave(here::here("output/diabetes_classification_stack_bar_plot.png"), 
-       plot = diabetes_classification_plot, 
-       width = 8, height = 6, dpi = 300)
+  #### 1. 糖尿病、慢性肾病对 ICU 入住的影响 ####
+  severity_model <- glm(ICU ~ DIABETES + RENAL_CHRONIC + SEX + AGE + HIPERTENSION,
+                        data = temp_data_non_covid %>% filter(!is.na(ICU)),
+                        family = binomial)
+  
+  severity_results <- tidy(severity_model, conf.int = TRUE)
+  
+  # 保存模型结果
+  write.csv(severity_results, file = here::here("output/non_covid_severity_results.csv"))
+  
+  # 绘制模型结果
+  num_terms <- nrow(severity_results %>% filter(term != "(Intercept)"))
+  custom_colors <- hue_pal()(num_terms)
+  
+  ggplot(severity_results %>% filter(term != "(Intercept)"),
+         aes(x = term, y = exp(estimate), ymin = exp(conf.low), ymax = exp(conf.high), color = term)) +
+    geom_pointrange() +
+    geom_hline(yintercept = 1, linetype = "dashed") +
+    labs(
+      title = "Odds Ratios for ICU Admission (Non-COVID Cases)",
+      x = "Variable",
+      y = "Odds Ratio (Exp(Estimate))"
+    ) +
+    scale_color_manual(values = custom_colors) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none")
+  
+  # 保存图像
+  ggsave(here::here("output/non_covid_severity_odds_ratios.png"), width = 10, height = 6, dpi = 300)
+  
+  #### 2. 年龄和高血压对死亡率的影响 ####
+  mortality_model <- glm(MORTALITY ~ AGE + HIPERTENSION + SEX + DIABETES + COPD + OBESITY,
+                         data = temp_data_non_covid %>% filter(!is.na(MORTALITY)),
+                         family = binomial)
+  
+  mortality_results <- tidy(mortality_model, conf.int = TRUE)
+  
+  # 保存结果
+  write.csv(mortality_results, file = here::here("output/non_covid_mortality_results.csv"))
+  
+  # 绘制模型结果
+  num_terms <- nrow(mortality_results %>% filter(term != "(Intercept)"))
+  custom_colors <- hue_pal()(num_terms)
+  
+  ggplot(mortality_results %>% filter(term != "(Intercept)"),
+         aes(x = term, y = exp(estimate), ymin = exp(conf.low), ymax = exp(conf.high), color = term)) +
+    geom_pointrange() +
+    geom_hline(yintercept = 1, linetype = "dashed") +
+    labs(
+      title = "Odds Ratios for Mortality (Non-COVID Cases)",
+      x = "Variable",
+      y = "Odds Ratio (Exp(Estimate))"
+    ) +
+    scale_color_manual(values = custom_colors) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none")
+  
+  # 保存图像
+  ggsave(here::here("output/non_covid_mortality_odds_ratios.png"), width = 10, height = 6, dpi = 300)
+  
+  #### 3. 吸烟和肥胖对 ICU 入住的影响 ####
+  tobacco_obesity_model <- glm(ICU ~ TOBACCO + OBESITY + SEX + AGE,
+                               data = temp_data_non_covid %>% filter(!is.na(ICU), !is.na(TOBACCO), !is.na(OBESITY)),
+                               family = binomial)
+  
+  tobacco_obesity_results <- tidy(tobacco_obesity_model, conf.int = TRUE)
+  
+  # 保存结果
+  write.csv(tobacco_obesity_results, file = here::here("output/non_covid_tobacco_obesity_results.csv"))
+  
+  # 绘制模型结果
+  num_terms <- nrow(tobacco_obesity_results %>% filter(term != "(Intercept)"))
+  custom_colors <- hue_pal()(num_terms)
+  
+  ggplot(tobacco_obesity_results %>% filter(term != "(Intercept)"),
+         aes(x = term, y = exp(estimate), ymin = exp(conf.low), ymax = exp(conf.high), color = term)) +
+    geom_pointrange() +
+    geom_hline(yintercept = 1, linetype = "dashed") +
+    labs(
+      title = "Odds Ratios for ICU Admission (Tobacco and Obesity - Non-COVID Cases)",
+      x = "Variable",
+      y = "Odds Ratio (Exp(Estimate))"
+    ) +
+    scale_color_manual(values = custom_colors) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none")
+  
+  # 保存图像
+  ggsave(here::here("output/non_covid_tobacco_obesity_odds_ratios.png"), width = 10, height = 6, dpi = 300)
+  
+  #### 4. 叠加条形图分析吸烟和肥胖对 ICU 入住的影响 ####
+  temp_bar_data <- temp_data_non_covid %>%
+    filter(!is.na(ICU), !is.na(TOBACCO), !is.na(OBESITY)) %>%
+    group_by(ICU, TOBACCO, OBESITY) %>%
+    summarise(count = n(), .groups = "drop") %>%
+    mutate(ICU = factor(ICU, levels = c(0, 1), labels = c("No", "Yes")))
+  
+  ggplot(temp_bar_data, aes(x = TOBACCO, y = count, fill = OBESITY)) +
+    geom_bar(stat = "identity", position = "fill") +
+    facet_wrap(~ICU) +
+    labs(
+      title = "Stacked Bar Plot: Tobacco and Obesity vs ICU Admission (Non-COVID Cases)",
+      x = "Tobacco Use",
+      y = "Proportion",
+      fill = "Obesity"
+    ) +
+    scale_fill_brewer(palette = "Set2") +
+    theme_minimal()
+  
+  # 保存叠加条形图
+  ggsave(here::here("output/non_covid_tobacco_obesity_stacked_bar.png"), width = 10, height = 6, dpi = 300)
+}

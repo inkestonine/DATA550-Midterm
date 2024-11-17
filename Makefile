@@ -46,4 +46,4 @@ install:
 # clean	
 .PHONY: clean
 clean:
-	rm -f output/* && rm -f *.html && rm -f *.pdf
+	rm -f output/* && rm -f *.html && rm -f *.pdf && rm -f .DS_Store && rm -f .RDataTmp && rm -f .Rhistory

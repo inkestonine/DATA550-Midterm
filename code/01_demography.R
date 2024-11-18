@@ -5,10 +5,19 @@ library(gt)
 library(tibble)
 library(tidyr)
 library(gridExtra)
+library(config)
+
+
+# Load the configuration file
+config_list <- config::get(config = Sys.getenv("WHICH_CONFIG"))
+covid_enabled <- config_list$covid
 
 # Load data
 here::i_am("code/01_demography.R")
 data <- read.csv("covid_sub.csv")
+if(!dir.exists(here("output"))) {
+  dir.create(here("output"))
+}
 
 ########################################################################################
 # Pie chart: Displaying the proportion of two genders

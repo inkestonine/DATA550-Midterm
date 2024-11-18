@@ -10,7 +10,13 @@ The *covid_sub.csv* contains data from 20% of the population, and we will provid
 The Covid-19 report has four analysis parts.
 
 
-- `code/01_demography.R` 
+- `code/01_demography.R` from [L9otus](https://github.com/L9otus/DATA550-Midterm) is Demographic Analysis.
+  - Analyze the distribution of different demographic characteristics, such as age and gender.
+    - Pie chart: Displaying the proportion of two genders.
+    - Bar chart and box plot: Displaying the distribution of different ages.
+  - Examine the distribution of pregnant and immunosuppressed patients, focusing on their proportions among hospitalized or not.
+    - Classification table: Displaying the proportion of immunosuppressed/non-immunosuppressed patients in each patient_type.
+    - Classification table: Displaying the proportion of pregnant/non-pregnant in each patient_type.
 
 
 - `code/02_health_outcome.R` from [kmg1024](https://github.com/kmg1024/DATA550-Midterm) is Case Severity and Health Outcomes Analysis

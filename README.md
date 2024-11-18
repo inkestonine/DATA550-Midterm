@@ -63,3 +63,28 @@ The Covid-19 report has four analysis parts.
 The analysis parts are combined in `covid_report.Rmd`.
 
 `code/00_render_report.R` is used for rendering the combined report from the command line
+
+
+# Report Building Instruction
+
+To compile the report using `make`, follow these steps:
+
+### 1. To generate the default report (COVID-19 cases):
+
+Run the following command:
+
+```bash
+make
+```
+
+This will automatically analyze COVID-19 cases, as `WHICH_CONFIG=default` is the default setting.
+
+### 2. To generate the non-COVID-19 cases report:
+
+Set the `WHICH_CONFIG` parameter to `healthy` and run:
+
+```bash
+WHICH_CONFIG=healthy make
+```
+If you do not set the `WHICH_CONFIG` parameter, it will default to analyzing COVID-19 cases.
+

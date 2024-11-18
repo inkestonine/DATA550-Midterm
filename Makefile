@@ -3,6 +3,17 @@ report.html: code/covid_report.Rmd
 	Rscript code/00_render_report.R
 
 
+# 01 demography analysis
+bar_chart_age.png classification_table_immu.png pie_chart_sex.png box_plot_age.png classification_table_pregnancy.png&: \
+ code/01_demography.R covid_sub.csv
+	Rscript code/01_demography.R
+
+.PHONY: demography_analysis
+demography_analysis: bar_chart_age.png classification_table_immu.png \
+pie_chart_sex.png box_plot_age.png classification_table_pregnancy.png
+
+
+
 # 02 healthy outcome analysis
 output/classification_bar_chart.png output/diabetes_severity_scatter_plot.png output/classification_table.csv output/patient_outcomes_table.csv&: \
  code/02_health_outcome.R covid_sub.csv
@@ -46,4 +57,4 @@ install:
 # clean	
 .PHONY: clean
 clean:
-	rm -f output/* && rm -f *.html && rm -f *.pdf && rm -f .DS_Store && rm -f .RDataTmp && rm -f .Rhistory
+	rm -f output/*.png && rm -f output/*.cvs && rm -f output/*.rds && rm -f *.html && rm -f *.pdf && rm -f .DS_Store && rm -f .RDataTmp && rm -f .Rhistory

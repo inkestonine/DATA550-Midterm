@@ -10,7 +10,7 @@ The *covid_sub.csv* contains data from 20% of the population, and we will provid
 The Covid-19 report has four analysis parts.
 
 
-- `code/01_demograhy.R` 
+- `code/01_demography.R` 
 
 
 - `code/02_health_outcome.R` from [kmg1024](https://github.com/kmg1024/DATA550-Midterm) is Case Severity and Health Outcomes Analysis

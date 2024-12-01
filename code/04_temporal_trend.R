@@ -36,9 +36,9 @@ if (covid_enabled) {
   covid_sub <- covid_sub %>%
     mutate(hospitalizations = ifelse(PATIENT_TYPE == "hospitalization", 1, 0))
   
-  # Create 'cases' column (assuming 'CLASIFFICATION_FINAL' values 1-3 indicate diagnosed cases)
+  # Create 'cases' column (assuming 'CLASIFICATION_FINAL' values 1-3 indicate diagnosed cases)
   covid_sub <- covid_sub %>%
-    mutate(cases = ifelse(CLASIFFICATION_FINAL >= 1 & CLASIFFICATION_FINAL <= 3, 1, 0))
+    mutate(cases = ifelse(CLASIFICATION_FINAL >= 1 & CLASIFICATION_FINAL <= 3, 1, 0))
   
   # 1. Case Trends Over Time
   # Aggregating daily, weekly, and monthly case trends using 'DATE_DIED' as proxy

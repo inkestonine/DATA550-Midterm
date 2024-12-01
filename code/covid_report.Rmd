@@ -2,82 +2,182 @@
 title: "Covid-19 Report"
 author: "Group 4"
 date: "`r Sys.Date()`"
-output: pdf_document
+output: html_document
+# params:
+#   covid_enabled:
+#     # TRUE
+#     FALSE
 ---
 
-```{r read-config}
-config_list <- config::get(
-    config = Sys.getenv("WHICH_CONFIG")
-)
+```{r read-config, include=FALSE}
+config_list <- config::get( config = Sys.getenv("WHICH_CONFIG") ) 
+```
+
+
+```{r setup, echo=FALSE, message = FALSE}
 covid_enabled <- config_list$covid
 if (covid_enabled == T) {
-  check_covid = "covid"
+  check_covid = "COVID"
 } else {
-  check_covid = "non-covid"
-  }
-print(paste0("Now we are analyzing ",check_covid , " data."))
+  check_covid = "Non-COVID"
+}
+print(check_covid)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+here::i_am("code/covid_report.Rmd")
 ```
+
+Now we are analyzing `r check_covid` data.
 
 ```{r, set-chunk-opts, echo = FALSE, message = FALSE}
 pacman::p_load(
   knitr,
-  tree
+  kableExtra
   )
-opts_chunk$set(
-  echo = FALSE, warning = FALSE, message = FALSE
-)
-here::i_am("code/covid_report.Rmd")
 ```
 
-```{r, print-organization-structure, include = F}
-# setwd("D:/Yan/Emory/2024Fall/DATA550/DATA550-Midterm")
-# 
-# print_tree <- function(path, prefix = "") {
-#   # list all files and folders
-#   items <- list.files(path, full.names = TRUE)
-# 
-#   # calculate the max name to alige
-#   max_length <- max(nchar(basename(items)))
-# 
-#   for (i in seq_along(items)) {
-#     # print
-#     if (i == length(items)) {
-#       cat(prefix, "└── ", sprintf("%-*s", max_length, basename(items[i])), "\n")  # last
-#       new_prefix <- paste0(prefix, "    ")  # update prefix
-#     } else {
-#       cat(prefix, "├── ", sprintf("%-*s", max_length, basename(items[i])), "\n")  # other
-#       new_prefix <- paste0(prefix, " │   ")  # update prefix
-#     }
-# 
-#     # check if folder
-#     if (file.info(items[i])$isdir) {
-#       print_tree(items[i], new_prefix)  # recursive call
-#     }
-#   }
-# }
-# print_tree(".")
-```
 
-## 01_demography
+## Part I - Demographic Analysis
+
+### 1.1 Demographic Characteristics
 ```{r}
+include_graphics(here::here("output/pie_chart_sex.png"))
+include_graphics(here::here("output/bar_chart_age.png"))
+include_graphics(here::here("output/box_plot_age.png"))
+```
 
+### 1.2 Pregnant and Immunosuppressed Patients
+```{r}
+include_graphics(here::here("output/classification_table_immu.png"))
+include_graphics(here::here("output/classification_table_pregnancy.png"))
 ```
 
 
 ## Part II - Case Severity and Health Outcomes Analysis
-```{r}
 
+### 2.1 Distribution of COVID-19 Cases
+```{r}
+include_graphics(here::here("output/classification_bar_chart.png"))
+```
+
+### 2.2 Relationship Between Pre-existing Health Conditions and Case Severity
+```{r}
+include_graphics(here::here("output/diabetes_severity_scatter_plot.png"))
+```
+
+
+### 2.3 Classification Distribution
+```{r}
+classification_table <- read.csv(here::here("output/classification_table.csv"))
+
+kable(classification_table, format = "html", caption = "Distribution of Patients") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed"))
+```
+
+
+### 2.4 Patient Type Outcomes
+```{r}
+patient_outcomes_table <- read.csv(here::here("output/patient_outcomes_table.csv"))
+
+kable(patient_outcomes_table, format = "html", caption = "Patient Outcomes and Critical Care Rates by Patient Type") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed"))
 ```
 
 
 ## Part III - Association Analysis
-```{r}
 
+### 3.1 ICU Admission Factors (COVID) 
+
+#### 3.1.1 Logistic Regression Results
+This table summarizes the logistic regression analysis of ICU admissions among `r check_covid` patients. Factors like diabetes, renal chronic disease, and hypertension are assessed for their association with ICU admission.
+```{r}
+severity_results <- read.csv(here::here("output/severity_results.csv"))
+
+kable(severity_results, format = "html", caption = paste0(check_covid, ": ICU Admission Logistic Regression Results")) %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed"))
 ```
 
+#### 3.1.2 DDS Ratios plot
+This plot visualizes the odds ratios from the logistic regression analysis, showing the strength and direction of association for each factor affecting ICU admissions
+```{r}
+include_graphics(here::here("output/severity_odds_ratios.png"))
+```
+
+### 3.2 Mortality Factors
+
+#### 3.2.1 Logistic Regression Results
+This table presents the logistic regression analysis of factors associated with mortality among `r check_covid` patients, including age, hypertension, diabetes, and obesity.
+```{r}
+covid_mortality_results <- read.csv(here::here("output/mortality_results.csv"))
+
+kable(covid_mortality_results, format = "html", caption = paste0(check_covid, ": Mortality Logistic Regression Results")) %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed"))
+```
+
+#### 3.2.2 DDS Ratios Plot
+This plot highlights the odds ratios for factors influencing mortality among `r check_covid` patients.
+```{r}
+include_graphics(here::here("output/mortality_odds_ratios.png"))
+```
+
+### 3.3 Tobacco and Obesity Impact on ICU Admission
+
+#### 3.3.1 Logistic Regression Results
+This table displays the results of logistic regression analysis examining the relationship between tobacco use, obesity, and ICU admissions among `r check_covid` patients.
+```{r}
+covid_tobacco_obesity_results <- read.csv(here::here("output/tobacco_obesity_results.csv"))
+
+kable(covid_tobacco_obesity_results, format = "html", caption = paste0(check_covid, ": Tobacco and Obesity Impact on ICU Admission")) %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed"))
+```
+
+#### 3.3.2 DDS Ratios Plot
+This plot illustrates the odds ratios for tobacco use and obesity in predicting ICU admissions.
+
+```{r}
+# Include tobacco and obesity analysis plot
+include_graphics(here::here("output/tobacco_obesity_odds_ratios.png"))
+```
+
+#### 3.3.3 Stacked Bar Plot
+This stacked bar plot visualizes the distribution of ICU admissions by tobacco use and obesity status among `r check_covid` patients.
+```{r}
+# Include stacked bar plot
+include_graphics(here::here("output/tobacco_obesity_stacked_bar.png"))
+```
 
 ## Part IV - Temporal Trends and Outcome Analysis
-```{r}
 
+### 4.1 Case Trends Over Time
+```{r}
+include_graphics(here::here("output/daily_cases.png"))
+include_graphics(here::here("output/weekly_cases.png"))
+include_graphics(here::here("output/monthly_cases.png"))
 ```
+
+### 4.2 Mortality and Hospitalization Trends
+```{r}
+include_graphics(here::here("output/mortality_hospitalization_rates.png"))
+```
+
+### 4.3 ICU Admission and Intubation Rates
+```{r}
+include_graphics(here::here("output/icu_intubation_rates.png"))
+```
+
+### 4.4 Date-of-Death and Severe Case Prediction
+```{r}
+include_graphics(here::here("output/death_trends.png"))
+```
+
+### 4.5 Summary
+```{r}
+summary_statistics <- readRDS(
+  file = here::here("output/summary_statistics.rds")
+)
+kable(summary_statistics, align = "cccc")
+```
+
+
+
+
 

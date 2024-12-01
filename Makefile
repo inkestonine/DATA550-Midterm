@@ -1,6 +1,6 @@
 # render report
-report.html: code/covid_report.Rmd 
-	Rscript code/00_render_report.R
+report.html: code/covid_report.Rmd demography_analysis health_outcome association temporal_trend
+	Rscript code/00_render_report.R 
 
 
 # 01 demography analysis
@@ -57,4 +57,4 @@ install:
 # clean	
 .PHONY: clean
 clean:
-	rm -f output/*.png && rm -f output/*.cvs && rm -f output/*.rds && rm -f *.html && rm -f *.pdf && rm -f .DS_Store && rm -f .RDataTmp && rm -f .Rhistory
+	rm -f output/* && touch output/.gitkeep

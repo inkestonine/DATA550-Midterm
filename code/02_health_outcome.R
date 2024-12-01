@@ -15,14 +15,12 @@ data <- read_csv("covid_sub.csv")
 # Load the configuration file based on the WHICH_CONFIG environment variable 
 config_list <- config::get( config = Sys.getenv("WHICH_CONFIG") ) 
 covid_enabled <- config_list$covid
+print(covid_enabled)
 
-if(!dir.exists(here("output"))) {
-  dir.create(here("output"))
-}
 
-head(data)
-str(data)
-summary(data)
+#head(data)
+#str(data)
+#summary(data)
 
 data_clean <- data %>%
   select(-`...1`) %>%  
@@ -69,7 +67,7 @@ if (covid_enabled) {
          x = "Classification Level",
          y = "Number of Cases")
   
-  print(classification_plot)
+  #print(classification_plot)
   ggsave(here("output/classification_bar_chart.png"), plot = classification_plot, width = 8, height = 6)
   
   diabetes_severity_plot <- ggplot(data_filtered, aes(x = diabetes, y = severity)) +
@@ -79,7 +77,7 @@ if (covid_enabled) {
          x = "Diabetes Status",
          y = "Case Severity")
   
-  print(diabetes_severity_plot)
+  #print(diabetes_severity_plot)
   ggsave(here("output/diabetes_severity_scatter_plot.png"), plot = diabetes_severity_plot, width = 8, height = 6)
   
   classification_table <- data_filtered %>%
@@ -87,7 +85,7 @@ if (covid_enabled) {
     summarise(Count = n()) %>%
     mutate(Percentage = round((Count / sum(Count)) * 100, 2))
   
-  print(classification_table)
+  #print(classification_table)
   write_csv(classification_table, here("output/classification_table.csv"))
   
   patient_outcomes <- data_filtered %>%
@@ -98,7 +96,7 @@ if (covid_enabled) {
       Intubation_Rate = mean(intubed == "Yes", na.rm = TRUE) * 100
     )
   
-  print(patient_outcomes)
+  #print(patient_outcomes)
   write_csv(patient_outcomes, here("output/patient_outcomes_table.csv"))
   
 } else {

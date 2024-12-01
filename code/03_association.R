@@ -66,7 +66,7 @@ if (covid_enabled) {
     geom_pointrange() +
     geom_hline(yintercept = 1, linetype = "dashed") +
     labs(
-      title = "Odds Ratios for ICU Admission (COVID Cases)",
+      title = "Odds Ratios for ICU Admission",
       x = "Variable",
       y = "Odds Ratio (Exp(Estimate))"
     ) +
@@ -95,7 +95,7 @@ if (covid_enabled) {
     geom_pointrange() +
     geom_hline(yintercept = 1, linetype = "dashed") +
     labs(
-      title = "Odds Ratios for Mortality (COVID Cases)",
+      title = "Odds Ratios for Mortality",
       x = "Variable",
       y = "Odds Ratio (Exp(Estimate))"
     ) +
@@ -124,7 +124,7 @@ if (covid_enabled) {
     geom_pointrange() +
     geom_hline(yintercept = 1, linetype = "dashed") +
     labs(
-      title = "Odds Ratios for ICU Admission (Tobacco and Obesity - COVID Cases)",
+      title = "Odds Ratios for ICU Admission (Tobacco and Obesity)",
       x = "Variable",
       y = "Odds Ratio (Exp(Estimate))"
     ) +
@@ -145,7 +145,7 @@ if (covid_enabled) {
     geom_bar(stat = "identity", position = "fill") +
     facet_wrap(~ICU) +
     labs(
-      title = "Stacked Bar Plot: Tobacco and Obesity vs ICU Admission (COVID Cases)",
+      title = "Stacked Bar Plot: Tobacco and Obesity vs ICU Admission",
       x = "Tobacco Use",
       y = "Proportion",
       fill = "Obesity"

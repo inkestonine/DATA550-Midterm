@@ -12,11 +12,11 @@ The Covid-19 report has four analysis parts.
 
 ## 1. `code/01_demography.R` from [L9otus](https://github.com/L9otus/DATA550-Midterm) is Demographic Analysis
 - Analyze the distribution of different demographic characteristics, such as age and gender.
-  - Pie chart `pie_chart_age.png` : Displaying the proportion of two genders.
-  - Bar chart `bar_chart_age.png` and box plot `box_plot_age.png` : Displaying the distribution of different ages.
+  - Pie chart `output/pie_chart_sex.png` : Displaying the proportion of two genders.
+  - Bar chart `output/bar_chart_age.png` and box plot `output/box_plot_age.png` : Displaying the distribution of different ages.
 - Examine the distribution of pregnant and immunosuppressed patients, focusing on their proportions among hospitalized or not.
-  - Classification table `classification_table_immu.png` : Displaying the proportion of immunosuppressed/non-immunosuppressed patients in each patient_type.
-  - Classification table `classification_table_pregnancy.png`: Displaying the proportion of pregnant/non-pregnant in each patient_type.
+  - Classification table `output/classification_table_immu.png` : Displaying the proportion of immunosuppressed/non-immunosuppressed patients in each patient_type.
+  - Classification table `output/classification_table_pregnancy.png`: Displaying the proportion of pregnant/non-pregnant in each patient_type.
 
 
 ## 2. `code/02_health_outcome.R` from [kmg1024](https://github.com/kmg1024/DATA550-Midterm) is Case Severity and Health Outcomes Analysis
@@ -48,15 +48,15 @@ The Covid-19 report has four analysis parts.
 
 
 ## 4. `code/04_temporal_trend.R` from [Shicy621](https://github.com/Shicy621/DATA550-Midterm) is Temporal Trends and Outcome Analysis
-- Case Trends Over Time `daily_cases.png` `weekly_cases.png` `monthly_cases.png`
+- Case Trends Over Time `output/daily_cases.png` `output/weekly_cases.png` `output/monthly_cases.png`
   - Visuals and summary statistics showing case counts across intervals (daily, weekly, monthly), with insights on significant fluctuations during key periods.
-- Mortality and Hospitalization Trends `mortality_hospitalization_rates.png`
+- Mortality and Hospitalization Trends `output/mortality_hospitalization_rates.png`
   - Charts showing mortality and hospitalization rate changes over time, highlighting any significant increases or decreases across different periods.
-- ICU Admission and Intubation Rates `icu_intubation_rates.png`
+- ICU Admission and Intubation Rates `output/icu_intubation_rates.png`
   - Analysis of ICU and intubation rates during seasonal and pandemic peaks, with comparisons to low-demand periods to assess resource strain.
-- Date-of-Death and Severe Case Prediction `death_trends.png`
+- Date-of-Death and Severe Case Prediction `output/death_trends.png`
   - Death trends over time, with potential predictive insights for severe cases, aimed at aiding resource planning for peak periods.
-- Summary `summary_statistics.rds`
+- Summary `output/summary_statistics.rds`
   - Key findings and recommendations on managing resources effectively during high-demand intervals.
 
 

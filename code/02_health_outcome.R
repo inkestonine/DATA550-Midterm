@@ -5,6 +5,7 @@ library(readr)
 library(knitr)
 library(kableExtra)
 library(here)
+library(config)
 
 # setwd("D:/RToolkit/DATA550-Midterm")
 here::i_am("code/02_health_outcome.R")
@@ -26,7 +27,7 @@ summary(data)
 data_clean <- data %>%
   select(-`...1`) %>%  
   rename(
-    classification = CLASIFFICATION_FINAL  
+    classification = CLASIFICATION_FINAL 
   ) %>%
   mutate(
     classification = as.factor(classification),
@@ -55,47 +56,52 @@ data_clean <- data %>%
       TRUE ~ NA_character_
     ),
     severity = factor(severity, levels = c("Mild", "Moderate", "Severe"))
-  ) %>%
-  filter(classification %in% c(1, 2, 3))
+  ) 
 
 if (covid_enabled) {
-  classification_plot <- ggplot(data_clean, aes(x = classification)) +
-  geom_bar(fill = "steelblue") +
-  theme_minimal() +
-  labs(title = "COVID-19 Cases by Classification Level",
-       x = "Classification Level",
-       y = "Number of Cases")
+  data_filtered <- data_clean %>%
+    filter(as.numeric(classification) <= 3)
   
-print(classification_plot)
-ggsave(here("output/classification_bar_chart.png"), plot = classification_plot, width = 8, height = 6)
-
-diabetes_severity_plot <- ggplot(data_clean, aes(x = diabetes, y = severity)) +
-  geom_jitter(alpha = 0.5, width = 0.2, height = 0.2, color = "darkred") +
-  theme_minimal() +
-  labs(title = "Relationship Between Diabetes and Case Severity",
-       x = "Diabetes Status",
-       y = "Case Severity")
-
-print(diabetes_severity_plot)
-ggsave(here("output/diabetes_severity_scatter_plot.png"), plot = diabetes_severity_plot, width = 8, height = 6)
-
-classification_table <- data_clean %>%
-  group_by(classification) %>%
-  summarise(Count = n()) %>%
-  mutate(Percentage = round((Count / sum(Count)) * 100, 2))
-
-print(classification_table)
-write_csv(classification_table, here("output/classification_table.csv"))
-
-patient_outcomes <- data_clean %>%
-  group_by(patient_type) %>%
-  summarise(
-    Mortality_Rate = mean(!is.na(date_died)) * 100,
-    ICU_Admission_Rate = mean(icu == "Yes", na.rm = TRUE) * 100,
-    Intubation_Rate = mean(intubed == "Yes", na.rm = TRUE) * 100
-  )
-
-
-print(patient_outcomes)
-write_csv(patient_outcomes, here("output/patient_outcomes_table.csv"))
+  classification_plot <- ggplot(data_filtered, aes(x = classification)) +
+    geom_bar(fill = "steelblue") +
+    theme_minimal() +
+    labs(title = "COVID-19 Cases by Classification Level",
+         x = "Classification Level",
+         y = "Number of Cases")
+  
+  print(classification_plot)
+  ggsave(here("output/classification_bar_chart.png"), plot = classification_plot, width = 8, height = 6)
+  
+  diabetes_severity_plot <- ggplot(data_filtered, aes(x = diabetes, y = severity)) +
+    geom_jitter(alpha = 0.5, width = 0.2, height = 0.2, color = "darkred") +
+    theme_minimal() +
+    labs(title = "Relationship Between Diabetes and Case Severity",
+         x = "Diabetes Status",
+         y = "Case Severity")
+  
+  print(diabetes_severity_plot)
+  ggsave(here("output/diabetes_severity_scatter_plot.png"), plot = diabetes_severity_plot, width = 8, height = 6)
+  
+  classification_table <- data_filtered %>%
+    group_by(classification) %>%
+    summarise(Count = n()) %>%
+    mutate(Percentage = round((Count / sum(Count)) * 100, 2))
+  
+  print(classification_table)
+  write_csv(classification_table, here("output/classification_table.csv"))
+  
+  patient_outcomes <- data_filtered %>%
+    group_by(patient_type) %>%
+    summarise(
+      Mortality_Rate = mean(!is.na(date_died)) * 100,
+      ICU_Admission_Rate = mean(icu == "Yes", na.rm = TRUE) * 100,
+      Intubation_Rate = mean(intubed == "Yes", na.rm = TRUE) * 100
+    )
+  
+  print(patient_outcomes)
+  write_csv(patient_outcomes, here("output/patient_outcomes_table.csv"))
+  
+} else {
+  message("covid_enabled is set to FALSE. Skipping analysis for classification > 3.")
 }
+

@@ -56,7 +56,7 @@ data_clean <- data %>%
     severity = factor(severity, levels = c("Mild", "Moderate", "Severe"))
   ) 
 
-if (covid_enabled) {
+
   data_filtered <- data_clean %>%
     filter(as.numeric(classification) <= 3)
   
@@ -99,7 +99,5 @@ if (covid_enabled) {
   #print(patient_outcomes)
   write_csv(patient_outcomes, here("output/patient_outcomes_table.csv"))
   
-} else {
-  message("covid_enabled is set to FALSE. Skipping analysis for classification > 3.")
-}
+
 

@@ -13,6 +13,6 @@ if (config_list$covid) {
 rmarkdown::render(
   here::here("code/covid_report.Rmd"),
   output_file = here::here(paste0(
-    "output/Analysis Report for ", covid_enabled, ".html"
+    "Analysis Report for ", covid_enabled, ".html"
   ))
 )

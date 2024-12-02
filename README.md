@@ -62,7 +62,7 @@ The Covid-19 report has four analysis parts.
 
 The analysis parts are combined in `covid_report.Rmd`.
 
-`code/00_render_report.R` is used for rendering the combined report in the `output/` directory from the command line.
+`code/00_render_report.R` is used for rendering the combined report to the root directory from the command line.
 
 
 # Report Building Instruction
@@ -84,10 +84,12 @@ This will automatically analyze COVID-19 cases, as `WHICH_CONFIG=default` is the
 Set the `WHICH_CONFIG` parameter to `healthy` and run:
 
 ```{bash}
-WHICH_CONFIG=healthy make
+export WHICH_CONFIG=healthy
+make
 ```
 
 If you do not set the `WHICH_CONFIG` parameter, it will default to analyzing COVID-19 cases.
+*Note: There's only Part III has non-Covid version.*
 
 ### 3. To clean the output files in the output/ directory and other unnecessary by-products, run:
 

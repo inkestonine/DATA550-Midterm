@@ -57,4 +57,4 @@ install:
 # clean	
 .PHONY: clean
 clean:
-	rm -f output/* && touch output/.gitkeep
+	rm -f output/* && touch output/.gitkeep && rm -f *.html

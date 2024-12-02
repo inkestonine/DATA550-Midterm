@@ -20,7 +20,7 @@ if (!dir.exists(output_dir)) {
   dir.create(output_dir)
 }
 
-if (covid_enabled) {
+#if (covid_enabled) {
   # Convert 'DATE_DIED' to Date format and handle missing values
   covid_sub <- data %>%
     mutate(
@@ -144,4 +144,4 @@ if (covid_enabled) {
   saveRDS(summary_statistics, file = here::here("output", "summary_statistics.rds"))
   
   print(summary_statistics)
-}
+# }

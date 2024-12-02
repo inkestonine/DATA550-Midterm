@@ -21,7 +21,7 @@ if (covid_enabled == T) {
 } else {
   check_covid = "Non-COVID"
 }
-print(check_covid)
+#print(check_covid)
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 here::i_am("code/covid_report.Rmd")
 ```
@@ -54,6 +54,7 @@ include_graphics(here::here("output/classification_table_pregnancy.png"))
 
 ## Part II - Case Severity and Health Outcomes Analysis
 
+
 ### 2.1 Distribution of COVID-19 Cases
 ```{r}
 include_graphics(here::here("output/classification_bar_chart.png"))
@@ -85,7 +86,7 @@ kable(patient_outcomes_table, format = "html", caption = "Patient Outcomes and C
 
 ## Part III - Association Analysis
 
-### 3.1 ICU Admission Factors (COVID) 
+### 3.1 ICU Admission Factors
 
 #### 3.1.1 Logistic Regression Results
 This table summarizes the logistic regression analysis of ICU admissions among `r check_covid` patients. Factors like diabetes, renal chronic disease, and hypertension are assessed for their association with ICU admission.
